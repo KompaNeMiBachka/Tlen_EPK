@@ -1,5 +1,58 @@
 <script lang="ts">
 	let language = $state<'en' | 'bg'>('en');
+	let subscribeEmail = $state('');
+	let subscribeStatus = $state<'idle' | 'loading' | 'success' | 'already' | 'error'>('idle');
+	let subscribeMessage = $state('');
+
+	const newsletterLabels = {
+		en: {
+			label: 'Newsletter',
+			placeholder: 'Enter your email',
+			submit: 'Subscribe',
+			joined: 'Joined',
+			already: 'Already subscribed',
+			success: 'Subscribed successfully',
+			error: 'Subscription failed'
+		},
+		bg: {
+			label: 'Бюлетин',
+			placeholder: 'Въведете имейл',
+			submit: 'Абониране',
+			joined: 'Записан',
+			already: 'Вече сте абонирани',
+			success: 'Успешен абонамент',
+			error: 'Възникна грешка'
+		}
+	};
+
+	async function handleSubscribe(e: SubmitEvent) {
+		e.preventDefault();
+		if (!subscribeEmail) return;
+		subscribeStatus = 'loading';
+		try {
+			const formData = new FormData();
+			formData.append('email', subscribeEmail);
+			const res = await fetch('/api/subscribe', {
+				method: 'POST',
+				body: formData
+			});
+			if (res.status === 200) {
+				subscribeStatus = 'success';
+				subscribeMessage = newsletterLabels[language].success;
+				subscribeEmail = '';
+			} else if (res.status === 409) {
+				subscribeStatus = 'already';
+				subscribeMessage = newsletterLabels[language].already;
+			} else {
+				const errorText = await res.text();
+				subscribeStatus = 'error';
+				subscribeMessage = errorText || newsletterLabels[language].error;
+			}
+		} catch {
+			subscribeStatus = 'error';
+			subscribeMessage = newsletterLabels[language].error;
+		}
+	}
 	const bios = {
 		en: {
 			intro:
@@ -99,6 +152,61 @@
 				class="flex items-end justify-between gap-6 font-mono text-[11px] tracking-[0.06em] uppercase max-[700px]:flex-col max-[700px]:items-start"
 			>
 				<p class="m-0 max-w-[260px] leading-6">Indie / post-punk / alternative</p>
+
+				<form
+					action="/api/subscribe"
+					method="POST"
+					onsubmit={handleSubscribe}
+					class="w-full max-w-[340px] max-[700px]:max-w-full"
+				>
+					<label
+						for="newsletter-email"
+						class="mb-1.5 block font-mono text-[10px] tracking-[0.1em] text-white/70 uppercase"
+					>
+						{newsletterLabels[language].label}
+					</label>
+					<div
+						class="flex items-center border border-white/30 bg-black/40 backdrop-blur-sm transition-colors focus-within:border-white"
+					>
+						<input
+							type="text"
+							id="newsletter-email"
+							name="email"
+							bind:value={subscribeEmail}
+							oninput={() => {
+								if (subscribeStatus !== 'idle') subscribeStatus = 'idle';
+							}}
+							placeholder={newsletterLabels[language].placeholder}
+							required
+							class="w-full bg-transparent px-3 py-2 font-mono text-[11px] tracking-[0.06em] text-white placeholder:text-white/40 focus:outline-none"
+						/>
+						<button
+							type="submit"
+							class="cursor-pointer border-l border-white/30 bg-white/10 px-3.5 py-2 font-mono text-[10px] tracking-[0.1em] text-white uppercase transition-colors hover:bg-white hover:text-black"
+						>
+							{#if subscribeStatus === 'loading'}
+								...
+							{:else if subscribeStatus === 'success'}
+								{newsletterLabels[language].joined}
+							{:else}
+								{newsletterLabels[language].submit}
+							{/if}
+						</button>
+					</div>
+					{#if subscribeStatus === 'success'}
+						<p class="mt-1.5 font-mono text-[10px] tracking-[0.08em] text-emerald-400 normal-case">
+							{subscribeMessage || newsletterLabels[language].success}
+						</p>
+					{:else if subscribeStatus === 'already'}
+						<p class="mt-1.5 font-mono text-[10px] tracking-[0.08em] text-amber-300 normal-case">
+							{subscribeMessage || newsletterLabels[language].already}
+						</p>
+					{:else if subscribeStatus === 'error'}
+						<p class="mt-1.5 font-mono text-[10px] tracking-[0.08em] text-rose-400 normal-case">
+							{subscribeMessage || newsletterLabels[language].error}
+						</p>
+					{/if}
+				</form>
 			</div>
 		</div>
 	</section>
