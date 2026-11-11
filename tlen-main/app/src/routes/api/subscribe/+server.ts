@@ -2,7 +2,13 @@ import { text } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { turso } from '../../../lib/turso';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	// Check session submission count (limit to 3 per session entry)
+	const sessionCount = parseInt(cookies.get('session_sub_count') || '0', 10);
+	if (sessionCount >= 3) {
+		return text('Maximum of 3 submissions reached for this session.', { status: 429 });
+	}
+
 	let email: string | null = null;
 	const contentType = request.headers.get('content-type') || '';
 
@@ -19,6 +25,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (!email) {
 		return text('Email is required.', { status: 400 });
 	}
+
+	// Basic email validation regex
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!emailRegex.test(email)) {
+		return text('Please enter a valid email address.', { status: 400 });
+	}
+
+	// Increment session count cookie (session lifetime)
+	cookies.set('session_sub_count', String(sessionCount + 1), {
+		path: '/',
+		httpOnly: true,
+		sameSite: 'lax'
+	});
 
 	try {
 		// Ensure the subs table exists
