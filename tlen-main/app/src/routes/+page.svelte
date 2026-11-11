@@ -126,7 +126,7 @@
 </script>
 
 <svelte:head>
-	<title>{language === 'bg' ? 'Тлен — Електронен прес кит' : 'Tlen — Electronic Press Kit'}</title>
+	<title>{language === 'bg' ? 'Тлен — Официален сайт' : 'Tlen — Official Website'}</title>
 	<meta
 		name="description"
 		content={language === 'bg'
