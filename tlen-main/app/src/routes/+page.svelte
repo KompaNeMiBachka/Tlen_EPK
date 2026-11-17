@@ -49,7 +49,11 @@
 </script>
 
 <svelte:head>
+<<<<<<< HEAD
 	<title>{language === 'bg' ? 'Тлен — Официален сайт' : 'Tlen — Official Website'}</title>
+=======
+	<title>{language === 'bg' ? 'Тлен — Официален Сайт' : 'Tlen — Official Website'}</title>
+>>>>>>> ce0f67d6a729dc7b268e7f0c9b1f0e5317790949
 	<meta
 		name="description"
 		content={language === 'bg'
