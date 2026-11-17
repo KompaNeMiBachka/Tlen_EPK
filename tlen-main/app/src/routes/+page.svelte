@@ -1,20 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { translations, type Language, type PhotoItem } from '../lib/translations';
 
 	let language = $state<Language>('en');
 	const t = $derived(translations[language]);
-
-	const MAX_SESSION_SUBMISSIONS = 3;
-	let submissionCount = $state(0);
-	const isLimitReached = $derived(submissionCount >= MAX_SESSION_SUBMISSIONS);
-	const limitReachedMessage = $derived(
-		language === 'bg'
-			? 'Достигнат е максималният лимит от 3 опита за тази сесия.'
-			: 'Maximum of 3 submissions reached for this session.'
-	);
 
 	function parseShowDate(dateStr: string): Date | null {
 		const parts = dateStr.trim().split('.');
@@ -41,29 +31,7 @@
 		return -1;
 	});
 
-	let subscribeEmail = $state('');
-	let subscribeStatus = $state<'idle' | 'loading' | 'success' | 'already' | 'error'>('idle');
-	let subscribeMessage = $state('');
-	let showNewsletterPopup = $state(false);
 	let previewPhoto = $state<PhotoItem | null>(null);
-
-	onMount(() => {
-		// Retrieve current session submission count
-		const savedCount = sessionStorage.getItem('tlen_sub_count');
-		if (savedCount) {
-			submissionCount = parseInt(savedCount, 10) || 0;
-		}
-
-		// Automatically open the email input box pop-up over the logo upon entering the site
-		const timer = setTimeout(() => {
-			showNewsletterPopup = true;
-		}, 500);
-		return () => clearTimeout(timer);
-	});
-
-	function closeNewsletterPopup() {
-		showNewsletterPopup = false;
-	}
 
 	function openPhotoPreview(photo: PhotoItem) {
 		previewPhoto = photo;
@@ -77,51 +45,6 @@
 		if (e) e.preventDefault();
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 		history.replaceState(null, '', '#top');
-	}
-
-	async function handleSubscribe(e: SubmitEvent) {
-		e.preventDefault();
-		if (!subscribeEmail) return;
-
-		// Enforce maximum 3 submissions per session
-		if (submissionCount >= MAX_SESSION_SUBMISSIONS) {
-			subscribeStatus = 'error';
-			subscribeMessage = limitReachedMessage;
-			return;
-		}
-
-		submissionCount += 1;
-		sessionStorage.setItem('tlen_sub_count', String(submissionCount));
-
-		subscribeStatus = 'loading';
-		try {
-			const formData = new FormData();
-			formData.append('email', subscribeEmail);
-			const res = await fetch('/api/subscribe', {
-				method: 'POST',
-				body: formData
-			});
-			if (res.status === 200) {
-				subscribeStatus = 'success';
-				subscribeMessage = t.newsletter.success;
-				subscribeEmail = '';
-			} else if (res.status === 409) {
-				subscribeStatus = 'already';
-				subscribeMessage = t.newsletter.already;
-			} else if (res.status === 429) {
-				subscribeStatus = 'error';
-				subscribeMessage = limitReachedMessage;
-				submissionCount = MAX_SESSION_SUBMISSIONS;
-				sessionStorage.setItem('tlen_sub_count', String(MAX_SESSION_SUBMISSIONS));
-			} else {
-				const errorText = await res.text();
-				subscribeStatus = 'error';
-				subscribeMessage = errorText || t.newsletter.error;
-			}
-		} catch {
-			subscribeStatus = 'error';
-			subscribeMessage = t.newsletter.error;
-		}
 	}
 </script>
 
@@ -220,147 +143,21 @@
 		<div
 			class="relative flex min-h-svh flex-col justify-between px-[30px] pt-[92px] pb-7 text-[#fafaf6] max-[700px]:px-[18px] max-[700px]:pt-[74px] max-[700px]:pb-5"
 		>
-			<!-- Centered Logo area with Pop-Up positioned directly over the logo -->
+			<!-- Centered Logo area -->
 			<div
 				class="relative mt-[6vh] flex w-[min(400px,58vw)] flex-col items-center justify-center self-center max-[700px]:w-[min(310px,73vw)]"
 			>
 				<img
-					class="w-full object-contain brightness-0 invert transition-opacity duration-300"
-					class:opacity-15={showNewsletterPopup}
+					class="w-full object-contain brightness-0 invert"
 					src="/logo_transparent.png"
 					alt="Tlen logo"
 				/>
-
-				<!-- Email Input Box Pop-Up over the logo -->
-				{#if showNewsletterPopup}
-					<div
-						transition:scale={{ start: 0.94, duration: 350, easing: cubicOut }}
-						class="absolute z-30 w-[min(380px,calc(100vw-36px))] border border-white/20 bg-[#161616]/95 p-5 text-[#fafaf6] shadow-[0_20px_50px_rgba(0,0,0,0.85)] backdrop-blur-md"
-						role="dialog"
-						aria-labelledby="newsletter-popup-title"
-					>
-						<div class="flex items-start justify-between gap-3">
-							<span
-								id="newsletter-popup-title"
-								class="font-mono text-[10px] tracking-[0.1em] text-white/50 uppercase"
-							>
-								{t.newsletter.label}
-							</span>
-							<button
-								type="button"
-								onclick={closeNewsletterPopup}
-								class="btn-slide -mt-1 -mr-1 cursor-pointer p-1 font-mono text-sm text-white/60 transition-colors hover:text-white"
-								aria-label={t.newsletter.close}
-							>
-								✕
-							</button>
-						</div>
-
-						{#if subscribeStatus === 'success'}
-							<p class="my-4 font-mono text-sm tracking-[0.04em] text-emerald-400">
-								{subscribeMessage || t.newsletter.success}
-							</p>
-							{#if isLimitReached}
-								<p class="mb-3 font-mono text-[11px] tracking-[0.04em] text-amber-300">
-									{limitReachedMessage}
-								</p>
-							{/if}
-							<div class="mt-4 flex justify-end">
-								<button
-									type="button"
-									onclick={closeNewsletterPopup}
-									class="btn-slide cursor-pointer border border-white/30 bg-white/10 px-3.5 py-1.5 font-mono text-[10px] tracking-[0.1em] text-white uppercase transition-colors hover:bg-white hover:text-black"
-								>
-									{t.newsletter.close}
-								</button>
-							</div>
-						{:else}
-							<p class="mt-2 text-[13px] leading-relaxed text-white/80">
-								{t.newsletter.popupText}
-							</p>
-
-							{#if isLimitReached}
-								<div class="my-3 border border-amber-400/30 bg-amber-400/10 p-2.5">
-									<p class="font-mono text-[11px] tracking-[0.04em] text-amber-300">
-										{limitReachedMessage}
-									</p>
-								</div>
-								<div class="mt-3 flex justify-end">
-									<button
-										type="button"
-										onclick={closeNewsletterPopup}
-										class="btn-slide cursor-pointer border border-white/30 bg-white/10 px-3.5 py-1.5 font-mono text-[10px] tracking-[0.1em] text-white uppercase transition-colors hover:bg-white hover:text-black"
-									>
-										{t.newsletter.close}
-									</button>
-								</div>
-							{:else}
-								<form
-									action="/api/subscribe"
-									method="POST"
-									onsubmit={handleSubscribe}
-									class="mt-3.5"
-								>
-									<div
-										class="flex items-center border border-white/30 bg-black/50 backdrop-blur-xs transition-colors focus-within:border-white"
-									>
-										<input
-											type="email"
-											id="popup-newsletter-email"
-											name="email"
-											bind:value={subscribeEmail}
-											disabled={isLimitReached || subscribeStatus === 'loading'}
-											oninput={() => {
-												if (subscribeStatus !== 'idle') subscribeStatus = 'idle';
-											}}
-											placeholder={t.newsletter.placeholder}
-											required
-											class="w-full bg-transparent px-3 py-2 font-mono text-[11px] tracking-[0.06em] text-white placeholder:text-white/40 focus:outline-none disabled:opacity-50"
-										/>
-										<button
-											type="submit"
-											disabled={isLimitReached || subscribeStatus === 'loading'}
-											class="btn-slide cursor-pointer border-l border-white/30 bg-white/10 px-3.5 py-2 font-mono text-[10px] tracking-[0.1em] text-white uppercase transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
-										>
-											{#if subscribeStatus === 'loading'}
-												...
-											{:else}
-												{t.newsletter.submit}
-											{/if}
-										</button>
-									</div>
-
-									{#if subscribeStatus === 'already'}
-										<p class="mt-2 font-mono text-[11px] tracking-[0.04em] text-amber-300">
-											{subscribeMessage}
-										</p>
-									{:else if subscribeStatus === 'error'}
-										<p class="mt-2 font-mono text-[11px] tracking-[0.04em] text-rose-400">
-											{subscribeMessage}
-										</p>
-									{/if}
-								</form>
-							{/if}
-						{/if}
-					</div>
-				{/if}
 			</div>
 
 			<div
 				class="flex items-end justify-between gap-6 font-mono text-[11px] tracking-[0.06em] uppercase max-[700px]:flex-col max-[700px]:items-start"
 			>
 				<p class="m-0 max-w-[280px] leading-6">{t.hero.genre}</p>
-
-				<!-- Toggle to reopen newsletter pop-up over the logo if dismissed -->
-				{#if !showNewsletterPopup}
-					<button
-						type="button"
-						onclick={() => (showNewsletterPopup = true)}
-						class="btn-slide cursor-pointer border border-white/30 bg-black/40 px-3.5 py-2 font-mono text-[10px] tracking-[0.1em] text-white uppercase backdrop-blur-sm transition-colors hover:bg-white hover:text-black"
-					>
-						{t.newsletter.label}
-					</button>
-				{/if}
 			</div>
 		</div>
 	</section>
@@ -424,16 +221,28 @@
 					{@const isPast = isShowPast(show.date)}
 					{@const isNext = i === nextUpcomingIndex}
 					<article
-						class="grid grid-cols-[92px_1fr_1.55fr] gap-4 border-b border-[#464646] py-[17px] text-[14px] leading-snug transition-opacity max-[700px]:grid-cols-[72px_1fr] max-[700px]:gap-[7px] max-[700px]:text-[13px]"
+						class="grid grid-cols-[92px_110px_1fr_auto] items-center gap-4 border-b border-[#464646] py-[17px] text-[14px] leading-snug transition-opacity max-[700px]:grid-cols-[72px_1fr_auto] max-[700px]:gap-x-3 max-[700px]:gap-y-1.5 max-[700px]:text-[13px]"
 						class:opacity-50={isPast}
-						class:line-through={isPast}
 						class:text-white={isNext}
 					>
-						<time class="font-mono text-[11px] whitespace-nowrap">{show.date}</time>
-						<p class="font-medium">{show.city}</p>
-						<p class="break-words text-[#a7a7a2] max-[700px]:col-start-2">
+						<time class="font-mono text-[11px] whitespace-nowrap" class:line-through={isPast}>{show.date}</time>
+						<p class="font-medium" class:line-through={isPast}>{show.city}</p>
+						<p class="break-words text-[#a7a7a2] max-[700px]:col-span-2" class:line-through={isPast}>
 							{show.venue}
 						</p>
+						{#if show.ticketUrl && !isPast}
+							<div class="flex justify-end max-[700px]:col-start-3 max-[700px]:row-start-1">
+								<a
+									href={show.ticketUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="btn-slide inline-flex items-center gap-1 border border-white/40 bg-white/10 px-3 py-1 font-mono text-[10px] tracking-[0.1em] text-white uppercase no-underline transition-colors hover:bg-white hover:text-black"
+								>
+									<span>{t.live.ticketsBtn}</span>
+									<span class="text-[9px]">↗</span>
+								</a>
+							</div>
+						{/if}
 					</article>
 				{/each}
 			</div>
@@ -561,12 +370,8 @@
 
 <svelte:window
 	onkeydown={(e) => {
-		if (e.key === 'Escape') {
-			if (previewPhoto) {
-				closePhotoPreview();
-			} else if (showNewsletterPopup) {
-				closeNewsletterPopup();
-			}
+		if (e.key === 'Escape' && previewPhoto) {
+			closePhotoPreview();
 		}
 	}}
 />

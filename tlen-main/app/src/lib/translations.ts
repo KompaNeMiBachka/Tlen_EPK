@@ -4,6 +4,7 @@ export interface Show {
 	date: string;
 	city: string;
 	venue: string;
+	ticketUrl?: string;
 }
 
 export interface PhotoItem {
@@ -46,6 +47,7 @@ export interface TranslationDictionary {
 	live: {
 		sectionNumber: string;
 		heading: string;
+		ticketsBtn: string;
 		shows: Show[];
 	};
 	photos: {
@@ -105,10 +107,26 @@ export const translations: Record<Language, TranslationDictionary> = {
 		live: {
 			sectionNumber: '02 / Live',
 			heading: 'Next\nshows',
+			ticketsBtn: 'Tickets',
 			shows: [
-				{ date: '14.10.2026', city: 'Sofia', venue: 'SoAlive Music Conference — Soda Bar' },
-				{ date: '22.11.2026', city: 'Sofia', venue: 'Mixtape Side-B — w/ Plattenbau' },
-				{ date: '27.11.2026', city: 'Sofia', venue: 'Toplocentrala — w/ TDK' }
+				{
+					date: '14.10.2026',
+					city: 'Sofia',
+					venue: 'SoAlive Music Conference — Soda Bar',
+					ticketUrl: 'https://bilet.bg'
+				},
+				{
+					date: '22.11.2026',
+					city: 'Sofia',
+					venue: 'Mixtape Side-B — w/ Plattenbau',
+					ticketUrl: 'https://bilet.bg/bg/events/plattenbau-tlen-evitceles-live-in-sofia-8690'
+				},
+				{
+					date: '27.11.2026',
+					city: 'Sofia',
+					venue: 'Toplocentrala — w/ TDK',
+					ticketUrl: 'https://bilet.bg/bg/events/tdk-i-tlen-na-zhivo-8888-8888'
+				}
 			]
 		},
 		photos: {
@@ -192,10 +210,26 @@ export const translations: Record<Language, TranslationDictionary> = {
 		live: {
 			sectionNumber: '02 / На живо',
 			heading: 'Предстоящи\nсъбития',
+			ticketsBtn: 'Билети',
 			shows: [
-				{ date: '14.10.2026', city: 'София', venue: 'SoAlive Музикална конференция — Soda Bar' },
-				{ date: '22.11.2026', city: 'София', venue: 'Mixtape Side-B — с Plattenbau' },
-				{ date: '27.11.2026', city: 'София', venue: 'Топлоцентрала — с TDK' }
+				{
+					date: '14.10.2026',
+					city: 'София',
+					venue: 'SoAlive Музикална конференция — Soda Bar',
+					ticketUrl: 'https://bilet.bg'
+				},
+				{
+					date: '22.11.2026',
+					city: 'София',
+					venue: 'Mixtape Side-B — с Plattenbau',
+					ticketUrl: 'https://bilet.bg/bg/events/plattenbau-tlen-evitceles-live-in-sofia-8690'
+				},
+				{
+					date: '27.11.2026',
+					city: 'София',
+					venue: 'Топлоцентрала — с TDK',
+					ticketUrl: 'https://epaygo.bg'
+				}
 			]
 		},
 		photos: {
