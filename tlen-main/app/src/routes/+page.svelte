@@ -1,10 +1,23 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { translations, type Language, type PhotoItem } from '../lib/translations';
+	import CountdownModal from '../lib/CountdownModal.svelte';
+	import { isPrelistenUnlocked } from '../lib/unlock';
 
 	let language = $state<Language>('en');
 	const t = $derived(translations[language]);
+
+	let showCountdownModal = $state(false);
+	let isPrelistenOpen = $state(isPrelistenUnlocked());
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			isPrelistenOpen = isPrelistenUnlocked();
+		}, 1000);
+		return () => clearInterval(interval);
+	});
 
 	function parseShowDate(dateStr: string): Date | null {
 		const parts = dateStr.trim().split('.');
@@ -49,11 +62,7 @@
 </script>
 
 <svelte:head>
-<<<<<<< HEAD
 	<title>{language === 'bg' ? 'Тлен — Официален сайт' : 'Tlen — Official Website'}</title>
-=======
-	<title>{language === 'bg' ? 'Тлен — Официален Сайт' : 'Tlen — Official Website'}</title>
->>>>>>> ce0f67d6a729dc7b268e7f0c9b1f0e5317790949
 	<meta
 		name="description"
 		content={language === 'bg'
@@ -159,9 +168,43 @@
 			</div>
 
 			<div
-				class="flex items-end justify-between gap-6 font-mono text-[11px] tracking-[0.06em] uppercase max-[700px]:flex-col max-[700px]:items-start"
+				class="flex items-end justify-between gap-6 font-mono text-[11px] tracking-[0.06em] uppercase max-[700px]:gap-4"
 			>
 				<p class="m-0 max-w-[280px] leading-6">{t.hero.genre}</p>
+
+				{#if isPrelistenOpen}
+					<a
+						href="/pre-listen"
+						class="btn-slide inline-flex items-center gap-1.5 cursor-pointer border border-white/30 bg-black/40 px-3.5 py-2 font-mono text-[10px] tracking-[0.1em] text-white uppercase backdrop-blur-xs transition-colors hover:bg-white hover:text-black whitespace-nowrap"
+					>
+						<span>{t.nav.prelisten}</span>
+						<span class="text-[9px]">↗</span>
+					</a>
+				{:else}
+					<button
+						type="button"
+						onclick={() => (showCountdownModal = true)}
+						class="btn-slide inline-flex items-center gap-2 cursor-pointer border border-white/30 bg-black/40 px-3.5 py-2 font-mono text-[10px] tracking-[0.1em] text-white uppercase backdrop-blur-xs transition-colors hover:bg-white hover:text-black whitespace-nowrap"
+						aria-label={t.countdown.lockedTooltip}
+						title={t.countdown.lockedTooltip}
+					>
+						<svg
+							class="size-3.5 text-amber-400"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.8"
+							stroke="currentColor"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+							/>
+						</svg>
+						<span>{t.nav.prelisten}</span>
+					</button>
+				{/if}
 			</div>
 		</div>
 	</section>
@@ -370,12 +413,21 @@
 			</div>
 		</div>
 	{/if}
+	<!-- Countdown Modal for Pre-Listen Unlock -->
+	<CountdownModal
+		bind:open={showCountdownModal}
+		{language}
+	/>
 </main>
 
 <svelte:window
 	onkeydown={(e) => {
-		if (e.key === 'Escape' && previewPhoto) {
-			closePhotoPreview();
+		if (e.key === 'Escape') {
+			if (previewPhoto) {
+				closePhotoPreview();
+			} else if (showCountdownModal) {
+				showCountdownModal = false;
+			}
 		}
 	}}
 />

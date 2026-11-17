@@ -20,6 +20,7 @@ export interface TranslationDictionary {
 		live: string;
 		photos: string;
 		contact: string;
+		prelisten: string;
 	};
 	hero: {
 		genre: string;
@@ -65,6 +66,44 @@ export interface TranslationDictionary {
 		backToTop: string;
 		copyright: string;
 	};
+	prelisten: {
+		badge: string;
+		title: string;
+		subtitle: string;
+		lockedBadge: string;
+		lockedTitle: string;
+		lockedDescription: string;
+		emailPlaceholder: string;
+		unlockBtn: string;
+		verifyingBtn: string;
+		notSubscribedText: string;
+		unlockedBadge: string;
+		unlockedWelcome: string;
+		trackTitle: string;
+		trackArtist: string;
+		playerDescription: string;
+		exclusiveNotice: string;
+		changeEmailBtn: string;
+		backToHome: string;
+		invalidEmail: string;
+		serverError: string;
+		precheckSuccess: string;
+	};
+	countdown: {
+		modalTitle: string;
+		subtitle: string;
+		daysLabel: string;
+		hoursLabel: string;
+		minutesLabel: string;
+		secondsLabel: string;
+		targetLabel: string;
+		unlockedMessage: string;
+		listenNowBtn: string;
+		closeBtn: string;
+		lockedBadge: string;
+		lockedTooltip: string;
+		viewCountdown: string;
+	};
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -74,11 +113,12 @@ export const translations: Record<Language, TranslationDictionary> = {
 			info: 'Info',
 			live: 'Live',
 			photos: 'Photos',
-			contact: 'Contact'
+			contact: 'Contact',
+			prelisten: 'Pre-listen'
 		},
 		hero: {
 			genre: 'Indie / post-punk / alternative',
-			epkTagline: 'Electronic Press Kit · Sofia, BG'
+			epkTagline: 'Official Website · Sofia, BG'
 		},
 		newsletter: {
 			label: 'Pre-listen',
@@ -169,6 +209,49 @@ export const translations: Record<Language, TranslationDictionary> = {
 			representedBy: 'Represented by Nikola Nikolov\nand Gueorgui Linev',
 			backToTop: 'Back to top ↑',
 			copyright: 'TLEN © 2026'
+		},
+		prelisten: {
+			badge: 'Pre-listen · Exclusive',
+			title: 'Early listen to "znak za trevoga"',
+			subtitle: 'Exclusive unreleased track preview for our newsletter subscribers.',
+			lockedBadge: 'Subscribers Only',
+			lockedTitle: 'Early listen to "znak za trevoga"',
+			lockedDescription:
+				'Sign up for an early listen. Enter the email you subscribed with to unlock the private stream.',
+			emailPlaceholder: 'Enter your email',
+			unlockBtn: 'Unlock',
+			verifyingBtn: 'Checking...',
+			notSubscribedText:
+				'This email was not found in our subscriber list. Only newsletter subscribers have access.',
+			unlockedBadge: 'Unlocked · Early Listen',
+			unlockedWelcome:
+				'Signed up successfully for early listen to "znak za trevoga".',
+			trackTitle: 'TLEN - Znak Za Trevoga - Master_v03',
+			trackArtist: 'тлен',
+			playerDescription:
+				'SoundCloud private stream player embedded below.',
+			exclusiveNotice:
+				'This track is an unreleased preview for subscribers. Please keep the private stream within the pre-listen circle.',
+			changeEmailBtn: 'Lock / Switch email',
+			backToHome: '← Back to site',
+			invalidEmail: 'Please enter a valid email address.',
+			serverError: 'An error occurred. Please try again.',
+			precheckSuccess: 'Subscription confirmed! The private stream unlocks automatically when the countdown ends.'
+		},
+		countdown: {
+			modalTitle: 'Pre-listen unlock',
+			subtitle: '',
+			daysLabel: 'Days',
+			hoursLabel: 'Hours',
+			minutesLabel: 'Mins',
+			secondsLabel: 'Secs',
+			targetLabel: 'Official unlock: 19.11.2026 · 23:59:59 EET',
+			unlockedMessage: 'Pre-listen is now unlocked!',
+			listenNowBtn: 'Listen now →',
+			closeBtn: 'Close',
+			lockedBadge: 'Locked · Click for countdown',
+			lockedTooltip: 'Pre-listen is locked until 19.11.2026 23:59:59. Click to view countdown.',
+			viewCountdown: 'View countdown'
 		}
 	},
 	bg: {
@@ -177,11 +260,12 @@ export const translations: Record<Language, TranslationDictionary> = {
 			info: 'Инфо',
 			live: 'Концерти',
 			photos: 'Снимки',
-			contact: 'Контакт'
+			contact: 'Контакт',
+			prelisten: 'Ранно слушане'
 		},
 		hero: {
 			genre: 'Инди / пост-пънк / алтърнатив',
-			epkTagline: 'Електронен прес кит · София, БГ'
+			epkTagline: 'Официален Сайт · София, БГ'
 		},
 		newsletter: {
 			label: 'Ранно слушане',
@@ -272,6 +356,49 @@ export const translations: Record<Language, TranslationDictionary> = {
 			representedBy: 'Представлявани от Никола Николов\nи Георги Линев',
 			backToTop: 'Към началото ↑',
 			copyright: 'ТЛЕН © 2026'
+		},
+		prelisten: {
+			badge: 'Ранно слушане · Ексклузивно',
+			title: 'Ранно слушане на "знак за тревога"',
+			subtitle: 'Ексклузивен предварителен запис за абонатите на бюлетина.',
+			lockedBadge: 'Само за абонати',
+			lockedTitle: 'Ранно слушане на "знак за тревога"',
+			lockedDescription:
+				'Запишете се за ранно слушане. Въведете имейла, с който сте се абонирали, за да отключите частния стрийм.',
+			emailPlaceholder: 'Въведете имейл',
+			unlockBtn: 'Отключи',
+			verifyingBtn: 'Проверка...',
+			notSubscribedText:
+				'Този имейл не беше открит в списъка с абонати. Достъп имат само абонатите на бюлетина.',
+			unlockedBadge: 'Отключен достъп · Ранно слушане',
+			unlockedWelcome:
+				'Успешно се записахте за ранно слушане на "знак за тревога".',
+			trackTitle: 'TLEN - Znak Za Trevoga - Master_v03',
+			trackArtist: 'тлен',
+			playerDescription:
+				'Вграден частен плейър в SoundCloud.',
+			exclusiveNotice:
+				'Този запис е предварителен и неиздаван. Молим да не разпространявате тайния линк извън кръга на абонатите.',
+			changeEmailBtn: 'Заключване / Смяна на имейл',
+			backToHome: '← Към сайта',
+			invalidEmail: 'Моля, въведете валиден имейл адрес.',
+			serverError: 'Възникна грешка. Моля, опитайте отново.',
+			precheckSuccess: 'Абонаментът е потвърден! Частният стрийм ще се отключи автоматично след края на отброяването.'
+		},
+		countdown: {
+			modalTitle: 'Отключване на ранно слушане',
+			subtitle: '',
+			daysLabel: 'Дни',
+			hoursLabel: 'Часа',
+			minutesLabel: 'Мин',
+			secondsLabel: 'Сек',
+			targetLabel: 'Официално отключване: 19.11.2026 · 23:59:59 EET',
+			unlockedMessage: 'Ранното слушане е вече отключено!',
+			listenNowBtn: 'Слушай сега →',
+			closeBtn: 'Затвори',
+			lockedBadge: 'Заключено · Натиснете за таймер',
+			lockedTooltip: 'Ранното слушане е заключено до 19.11.2026 23:59:59. Натиснете за обратно броене.',
+			viewCountdown: 'Виж обратното броене'
 		}
 	}
 };
